@@ -1,0 +1,141 @@
+DEVIOZ STORE / STOCKFLOW - CATALOGO MAESTRO 11,604
+===================================================
+
+REQUISITOS Y UBICACION EN XAMPP (macOS)
+---------------------------------------
+1. Copia la carpeta completa como:
+   /Applications/XAMPP/xamppfiles/htdocs/stockflow/
+2. Inicia Apache Web Server y MySQL Database desde XAMPP Manager.
+3. La aplicacion usa por defecto la base devioz_shop_reparada.
+4. Antes de modificar una instalacion existente, exporta esa base completa
+   desde phpMyAdmin. Conserva el archivo fuera de htdocs.
+
+No escribas contrasenas en este archivo, en el instalador ni en comandos del
+historial. El instalador las solicita sin mostrarlas y borra su archivo
+temporal al terminar.
+
+La instalacion nueva no incluye credenciales reutilizables. Despues de importar
+el SQL completo, ejecuta CREAR_ADMIN_INICIAL.command desde Terminal. El
+asistente solicita una contrasena fuerte sin mostrarla, la hashea mediante PHP
+y rechaza el proceso si ya existe un administrador.
+
+OPCION A - ACTUALIZAR UNA INSTALACION EXISTENTE
+-----------------------------------------------
+Usa esta opcion cuando devioz_shop_reparada ya funciona, contiene la tabla
+productos y ya se instalo el esquema profesional de StockFlow.
+
+Orden:
+1. Crea y verifica el respaldo de la base.
+2. Confirma en phpMyAdmin que productos contiene exactamente 11604 filas. Si
+   store_settings ya conserva stockflow_schema_marker=catalogo_11604, el
+   instalador lo validara directamente.
+3. Si aun no existe store_featured_products, selecciona
+   devioz_shop_reparada e importa una sola vez:
+   database/upgrade_catalogo_unificado_profesional.sql
+4. Haz doble clic en INSTALAR_CATALOGO_11604.command. macOS puede pedir que
+   confirmes la apertura del archivo. El instalador localiza el cliente MySQL
+   de XAMPP, solicita host, puerto, base, usuario y contrasena, valida el
+   marcador del proyecto y seis tablas/seis columnas antes de importar:
+   database/upgrade_catalogo_maestro_11604.sql
+   Si eliges otra base, debes escribir su nombre exactamente en la confirmacion.
+   Si es una instalacion StockFlow legitima anterior al marcador, valida una
+   huella legacy de 12 tablas y 36 columnas, comprueba las 11604 filas y pide
+   escribir exactamente el nombre de la base para inscribir el marcador. Esa
+   inscripcion solo actualiza la fila stockflow_schema_marker y no importa la
+   migracion hasta que la confirmacion sea exacta. Una base lookalike o con un
+   marcador incompatible se rechaza aunque tenga 11604 filas.
+5. No actives productos si el instalador muestra un error o un conteo distinto.
+
+El instalador se detiene antes de migrar cuando la fuente no tiene 11604
+filas. Al finalizar exige estas tres condiciones:
+- source_rows = 11604
+- operational_rows = 11604
+- ultima migracion = completed, source_count = 11604, imported_count = 11604
+
+OPCION B - INSTALACION NUEVA
+----------------------------
+ADVERTENCIA: database/devioz_shop_11604_completa.sql elimina y vuelve a crear
+devioz_shop_reparada. No lo importes sobre una base que necesites conservar.
+
+Orden:
+1. Respalda cualquier base anterior.
+2. Abre http://localhost/phpmyadmin y entra en Importar.
+3. Importa solamente database/devioz_shop_11604_completa.sql.
+4. Espera a que aparezcan las consultas de verificacion al final. No importes
+   despues stockflow.sql, devioz_shop_reparada.sql ni la migracion 11604: el
+   archivo completo ya contiene el catalogo reparado, el esquema final y cada
+   migracion una sola vez.
+5. Abre http://localhost/stockflow/ y luego el panel administrativo.
+
+El SQL completo es compatible con MariaDB 10.4 de XAMPP y contiene exactamente
+11604 registros de origen en productos. Los productos operativos se crean con
+venta, visibilidad, precio y stock desactivados o en cero para evitar una
+publicacion accidental.
+
+ACTIVACION SEGURA
+-----------------
+1. Entra en Administracion > Todos los productos.
+2. Revisa primero proveedor, EAN, categoria, costo y restriccion.
+3. Define precio de venta y stock real. Un producto con precio o stock cero no
+   esta listo para venderse.
+4. Activa y publica solo lotes revisados. La venta requiere active=1,
+   sale_enabled=1, restricted=0, stock positivo y price positivo.
+5. Comprueba una ficha, el carrito y un pedido de prueba antes de ampliar el
+   lote. No hagas una activacion masiva sin esta revision.
+
+SI UN CONTEO NO COINCIDE
+------------------------
+Detente. No repitas la importacion ni actives productos. En phpMyAdmin consulta:
+
+SELECT COUNT(*) AS source_rows FROM productos;
+SELECT COUNT(*) AS operational_rows FROM products WHERE source_product_id IS NOT NULL;
+SELECT status,source_count,imported_count,phase,details
+FROM catalog_migrations ORDER BY id DESC LIMIT 1;
+SELECT * FROM catalog_migration_issues
+WHERE migration_key='catalogo_maestro_11604' ORDER BY id;
+
+Corrige primero la causa indicada y conserva el respaldo. Una fuente distinta
+de 11604 o cualquier incidencia requiere inspeccion manual.
+
+RECUPERACION Y RESPALDO LEGACY (SOLO LECTURA)
+--------------------------------------------
+La migracion no reemplaza los datos anteriores: conserva instantaneas en
+legacy_products, legacy_product_images, legacy_inventory_movements,
+legacy_combos, legacy_combo_items, legacy_store_featured_products y
+legacy_stock_reservations.
+
+Consulta esas instantaneas desde admin/respaldo_anterior.php o con SELECT en
+phpMyAdmin. No ejecutes INSERT, UPDATE, DELETE, TRUNCATE ni ALTER sobre tablas
+legacy_*. Si necesitas reconstruir informacion, crea otro respaldo y compara
+la instantanea con las tablas activas antes de hacer una recuperacion manual.
+
+OLLAMA ES OPCIONAL
+------------------
+La tienda funciona con recomendaciones deterministas aunque Ollama este
+apagado. Para activar el modelo local, instala Ollama por separado, inicia su
+servicio y descarga el modelo configurado:
+
+ollama pull llama3.2:3b
+curl http://127.0.0.1:11434/api/tags
+
+Los valores predeterminados son SHOPPING_AI_PROVIDER=ollama,
+SHOPPING_AI_MODEL=llama3.2:3b y SHOPPING_OLLAMA_URL=http://127.0.0.1:11434.
+No hace falta una clave para el servicio local. Si no responde, la aplicacion
+mantiene el modo por reglas.
+
+COMPROBACIONES DE EJECUCION
+---------------------------
+En Terminal puedes verificar los binarios de XAMPP:
+
+/Applications/XAMPP/xamppfiles/bin/php -v
+/Applications/XAMPP/xamppfiles/bin/mysql --version
+
+En el navegador comprueba:
+- http://localhost/stockflow/
+- http://localhost/stockflow/login.php
+- Administracion > Todos los productos: total maestro 11604
+- Un producto no revisado no aparece en la tienda ni puede agregarse al carrito
+- admin/respaldo_anterior.php abre las instantaneas legacy en solo lectura
+
+Si Apache o MySQL no responden, inicialos desde XAMPP Manager y repite las
+comprobaciones. No cambies datos para ocultar un error de conteo.

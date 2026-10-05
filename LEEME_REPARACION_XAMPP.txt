@@ -1,0 +1,21 @@
+DEVIOZ STORE / STOCKFLOW - REPARACIÓN XAMPP
+
+Problema corregido:
+- Error #1813: Tablespace exists.
+- Error #1932: Table doesn't exist in engine.
+
+Qué hace esta versión:
+1. Mantiene intacta tu base anterior `devioz_shop`.
+2. Crea una base nueva `devioz_shop_reparada` desde el respaldo integrado del proyecto.
+3. El proyecto ya viene configurado para usar `devioz_shop_reparada`.
+4. Incluye INSTALAR_REPARACION_DB.command para hacer la instalación automáticamente.
+
+PASOS:
+1. Copia la carpeta `stockflow` a /Applications/XAMPP/xamppfiles/htdocs/
+2. Inicia Apache y MySQL.
+3. Haz doble clic en INSTALAR_REPARACION_DB.command.
+4. Cuando termine, abre http://localhost/stockflow/
+
+IMPORTANTE:
+- No borres la base antigua `devioz_shop` hasta comprobar que todo funciona.
+- Esta reparación usa el respaldo incluido en el paquete. Los datos que solo existan en tu MySQL local y no estén en ese respaldo no pueden incorporarse automáticamente desde este archivo.

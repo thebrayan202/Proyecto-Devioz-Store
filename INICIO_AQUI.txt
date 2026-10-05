@@ -1,0 +1,21 @@
+STOCKFLOW EN XAMPP (MAC)
+=======================
+
+Si ya estás usando el mismo Mac en el que se corrigió la instalación:
+- Abre http://localhost/stockflow/
+- Entra al panel en http://localhost/stockflow/login.php
+- No vuelvas a importar SQL: la tienda ya utiliza devioz_shop_reparada.
+
+Para instalar este ZIP en otro equipo:
+1. Descomprime la carpeta stockflow en /Applications/XAMPP/xamppfiles/htdocs/
+   Confirma que se llame stockflow exactamente, sin espacio final ni carpeta doble.
+2. Inicia Apache y MySQL en XAMPP.
+3. En phpMyAdmin importa SOLO database/devioz_shop_11604_completa.sql.
+   ATENCION: ese archivo reemplaza devioz_shop_reparada; exporta antes
+   cualquier base existente con ese nombre.
+4. Ejecuta CREAR_ADMIN_INICIAL.command y elige una contraseña propia.
+5. Si aparece 403, ejecuta INSTALAR_PERMISOS_XAMPP.command.
+
+No importes upgrade_suite_completa.sql en devioz_shop: esa base antigua puede
+estar dañada (#1932) y la aplicación está configurada para usar
+devioz_shop_reparada. El SQL completo ya incluye nutrición y checkout.
